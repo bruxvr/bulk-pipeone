@@ -108,7 +108,7 @@ const appData = {
       name: "Daniel Costa",
       email: "daniel.costa@email.com",
       phone: "+55 11 99999-4444",
-      conversationStatus: "Fechada",
+      conversationStatus: "Pausada",
       owner: "Ana Rodrigues",
       tags: ["Perdido"],
       age: 31,
@@ -140,7 +140,7 @@ const appData = {
       name: "Roberto Silva",
       email: "roberto.silva@email.com",
       phone: "+55 11 99999-6666",
-      conversationStatus: "Em andamento",
+      conversationStatus: "Andamento",
       owner: "Carlos Mendes",
       tags: ["VIP"],
       age: 38,
@@ -188,7 +188,7 @@ const appData = {
       name: "Carla Mendes",
       email: "carla.mendes@email.com",
       phone: "+55 11 99999-9999",
-      conversationStatus: "Fechada",
+      conversationStatus: "Pausada",
       owner: "Patricia Gomes",
       tags: ["Frio"],
       age: 33,
@@ -204,7 +204,7 @@ const appData = {
       name: "Lucas Rodrigues",
       email: "lucas.rodrigues@email.com",
       phone: "+55 11 99999-0000",
-      conversationStatus: "Em andamento",
+      conversationStatus: "Andamento",
       owner: "João Santos",
       tags: ["Quente"],
       age: 27,
@@ -236,7 +236,7 @@ const appData = {
       name: "Sarah Johnson",
       email: "sarah.johnson@email.com",
       phone: "+1 555 987-6543",
-      conversationStatus: "Em andamento",
+      conversationStatus: "Andamento",
       owner: "Pedro Lima",
       tags: ["Enterprise"],
       age: 29,
@@ -290,7 +290,7 @@ const appData = {
     "Roberto Silva",
     "Patricia Gomes",
   ],
-  conversationStatuses: ["Aberta", "Em andamento", "Resolvida", "Fechada"],
+  conversationStatuses: ["Aberta", "Em andamento", "Em pausa", "Resolvida"],
   kanbanLists: [
     "Hot Lead",
     "Lead Qualificado",
@@ -458,7 +458,7 @@ function initializeApp() {
 }
 
 function populateFilterOptions() {
-  // Populate agents
+  // Populate agents (only these are populated dynamically)
   appData.agents.forEach((agent) => {
     const option = document.createElement("option");
     option.value = agent;
@@ -471,33 +471,22 @@ function populateFilterOptions() {
     elements.newOwner.appendChild(actionOption);
   });
 
-  // Populate statuses
+  // Populate action selects (these need to be populated dynamically for actions)
   appData.conversationStatuses.forEach((status) => {
-    const option = document.createElement("option");
-    option.value = status;
-    option.textContent = status;
-    elements.filterStatus.appendChild(option);
-
     const actionOption = document.createElement("option");
     actionOption.value = status;
     actionOption.textContent = status;
     elements.newStatus.appendChild(actionOption);
   });
 
-  // Populate kanban lists
   appData.kanbanLists.forEach((kanban) => {
-    const option = document.createElement("option");
-    option.value = kanban;
-    option.textContent = kanban;
-    elements.filterKanban.appendChild(option);
-
     const actionOption = document.createElement("option");
     actionOption.value = kanban;
     actionOption.textContent = kanban;
     elements.newKanban.appendChild(actionOption);
   });
 
-  // Populate available tags
+  // Populate available tags for actions
   appData.availableTags.forEach((tag) => {
     const option = document.createElement("option");
     option.value = tag;
@@ -949,9 +938,9 @@ function renderContactsTable() {
 function getStatusColor(status) {
   const statusColors = {
     Aberta: "#3B82F6",
-    "Em andamento": "#F59E0B",
+    Andamento: "#F59E0B",
     Resolvida: "#10B981",
-    Fechada: "#6B7280",
+    Pausada: "#6B7280",
   };
   return statusColors[status] || "#6B7280";
 }
