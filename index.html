@@ -289,13 +289,22 @@
               <div class="action-block" data-action="bulkMessage">
                 <div class="action-icon">💬</div>
                 <div class="action-label">Mensagem em massa</div>
-                <button
-                  class="btn btn--secondary btn--sm action-btn"
-                  id="sendBulkMessage"
-                  disabled
-                >
-                  Enviar
-                </button>
+                <div class="action-buttons">
+                  <button
+                    class="btn btn--outline btn--sm action-btn"
+                    id="scheduleBulkMessage"
+                    disabled
+                  >
+                    Agendar
+                  </button>
+                  <button
+                    class="btn btn--secondary btn--sm action-btn"
+                    id="sendBulkMessage"
+                    disabled
+                  >
+                    Enviar
+                  </button>
+                </div>
               </div>
 
               <!-- Linha 2 -->
@@ -430,6 +439,106 @@
         <div class="modal-footer">
           <button class="btn btn--outline" id="cancelAction">Cancelar</button>
           <button class="btn btn--primary" id="confirmAction">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Agendamento de Mensagem -->
+    <div class="modal-overlay" id="scheduleModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Agendar Mensagem em Massa</h3>
+          <button class="modal-close" id="closeScheduleModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form class="schedule-form">
+            <div class="form-group">
+              <label class="form-label" for="scheduleDate">Data</label>
+              <input
+                type="date"
+                class="form-control"
+                id="scheduleDate"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="scheduleTime">Horário</label>
+              <input
+                type="time"
+                class="form-control"
+                id="scheduleTime"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="scheduleTimezone"
+                >Fuso Horário</label
+              >
+              <select class="form-control" id="scheduleTimezone">
+                <option value="America/Sao_Paulo">Brasília (GMT-3)</option>
+                <option value="America/New_York">Nova York (GMT-5)</option>
+                <option value="Europe/London">Londres (GMT+0)</option>
+                <option value="Europe/Paris">Paris (GMT+1)</option>
+                <option value="Asia/Tokyo">Tóquio (GMT+9)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="scheduleMessage">Mensagem</label>
+              <textarea
+                class="form-control"
+                id="scheduleMessage"
+                rows="4"
+                placeholder="Digite a mensagem que será enviada..."
+                required
+              ></textarea>
+              <small class="form-text">
+                Use {nome} para personalizar com o nome do contato
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Opções Avançadas</label>
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="scheduleRespectTimezone" />
+                  Respeitar fuso horário do contato
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="scheduleSkipWeekends" />
+                  Pular fins de semana
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="scheduleBusinessHours" />
+                  Apenas horário comercial (9h às 18h)
+                </label>
+              </div>
+            </div>
+
+            <div class="schedule-summary">
+              <h4>Resumo do Agendamento</h4>
+              <div class="summary-item">
+                <span class="summary-label">Contatos selecionados:</span>
+                <span class="summary-value" id="scheduleContactsCount">0</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Data e hora:</span>
+                <span class="summary-value" id="scheduleDateTime">-</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Mensagem:</span>
+                <span class="summary-value" id="scheduleMessagePreview">-</span>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn--outline" id="cancelSchedule">Cancelar</button>
+          <button class="btn btn--primary" id="confirmSchedule">
+            Agendar Mensagem
+          </button>
         </div>
       </div>
     </div>

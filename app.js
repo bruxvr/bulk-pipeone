@@ -425,16 +425,33 @@ const elements = {
 
   // Action buttons
   sendBulkMessage: document.getElementById("sendBulkMessage"),
+  scheduleBulkMessage: document.getElementById("scheduleBulkMessage"),
   downloadCSV: document.getElementById("downloadCSV"),
   deleteContacts: document.getElementById("deleteContacts"),
 
   // Modals
   reportsModal: document.getElementById("reportsModal"),
   confirmModal: document.getElementById("confirmModal"),
+  scheduleModal: document.getElementById("scheduleModal"),
   closeReportsModal: document.getElementById("closeReportsModal"),
   closeConfirmModal: document.getElementById("closeConfirmModal"),
+  closeScheduleModal: document.getElementById("closeScheduleModal"),
   viewReports: document.getElementById("viewReports"),
   viewPreviousReports: document.getElementById("viewPreviousReports"),
+
+  // Schedule modal elements
+  scheduleDate: document.getElementById("scheduleDate"),
+  scheduleTime: document.getElementById("scheduleTime"),
+  scheduleTimezone: document.getElementById("scheduleTimezone"),
+  scheduleMessage: document.getElementById("scheduleMessage"),
+  scheduleRespectTimezone: document.getElementById("scheduleRespectTimezone"),
+  scheduleSkipWeekends: document.getElementById("scheduleSkipWeekends"),
+  scheduleBusinessHours: document.getElementById("scheduleBusinessHours"),
+  scheduleContactsCount: document.getElementById("scheduleContactsCount"),
+  scheduleDateTime: document.getElementById("scheduleDateTime"),
+  scheduleMessagePreview: document.getElementById("scheduleMessagePreview"),
+  cancelSchedule: document.getElementById("cancelSchedule"),
+  confirmSchedule: document.getElementById("confirmSchedule"),
 
   // Modal content
   reportsTableBody: document.getElementById("reportsTableBody"),
@@ -627,6 +644,7 @@ function setupEventListeners() {
   // Actions
   elements.applyActions.addEventListener("click", showConfirmModal);
   elements.sendBulkMessage.addEventListener("click", sendBulkMessage);
+  elements.scheduleBulkMessage.addEventListener("click", showScheduleModal);
   elements.downloadCSV.addEventListener("click", downloadCSV);
   elements.deleteContacts.addEventListener("click", deleteSelectedContacts);
 
@@ -649,8 +667,11 @@ function setupEventListeners() {
   elements.viewPreviousReports.addEventListener("click", showReportsModal);
   elements.closeReportsModal.addEventListener("click", hideReportsModal);
   elements.closeConfirmModal.addEventListener("click", hideConfirmModal);
+  elements.closeScheduleModal.addEventListener("click", hideScheduleModal);
   elements.cancelAction.addEventListener("click", hideConfirmModal);
   elements.confirmAction.addEventListener("click", executeActions);
+  elements.cancelSchedule.addEventListener("click", hideScheduleModal);
+  elements.confirmSchedule.addEventListener("click", confirmScheduleMessage);
 
   // Close modals on backdrop click
   elements.reportsModal.addEventListener("click", (e) => {
@@ -659,6 +680,19 @@ function setupEventListeners() {
   elements.confirmModal.addEventListener("click", (e) => {
     if (e.target === elements.confirmModal) hideConfirmModal();
   });
+  elements.scheduleModal.addEventListener("click", (e) => {
+    if (e.target === elements.scheduleModal) hideScheduleModal();
+  });
+
+  // Schedule modal form updates
+  [
+    elements.scheduleDate,
+    elements.scheduleTime,
+    elements.scheduleTimezone,
+  ].forEach((input) => {
+    input.addEventListener("change", updateScheduleSummary);
+  });
+  elements.scheduleMessage.addEventListener("input", updateScheduleSummary);
 }
 
 function setupSectionToggles() {
@@ -1150,55 +1184,147 @@ function hideConfirmModal() {
   elements.confirmModal.classList.remove("active");
 }
 
-function executeActions() {
-  const selectedIds = Array.from(appState.selectedContacts);
-  const actions = appState.activeActions;
+// Schedule Modal Functions
+function showScheduleModal() {
+  const selectedCount = appState.selectedContacts.size;
+  if (selectedCount === 0) {
+    alert("Selecione pelo menos um contato para agendar mensagem.");
+    return;
+  }
 
-  // Apply actions to selected contacts
-  selectedIds.forEach((id) => {
-    const contactIndex = appData.contacts.findIndex((c) => c.id === id);
-    if (contactIndex !== -1) {
-      if (actions.owner) {
-        appData.contacts[contactIndex].owner = actions.owner;
-      }
-      if (actions.status) {
-        appData.contacts[contactIndex].conversationStatus = actions.status;
-      }
-      if (actions.kanban) {
-        appData.contacts[contactIndex].kanbanList = actions.kanban;
-      }
-      if (
-        actions.tag &&
-        !appData.contacts[contactIndex].tags.includes(actions.tag)
-      ) {
-        appData.contacts[contactIndex].tags.push(actions.tag);
-      }
-    }
-  });
+  // Set minimum date to today
+  const today = new Date().toISOString().split("T")[0];
+  elements.scheduleDate.min = today;
+  elements.scheduleDate.value = today;
 
-  // Reset state
-  appState.selectedContacts.clear();
-  appState.activeActions = {};
+  // Set default time to current time + 1 hour
+  const now = new Date();
+  now.setHours(now.getHours() + 1);
+  const timeString = now.toTimeString().slice(0, 5);
+  elements.scheduleTime.value = timeString;
 
-  // Reset action selects
-  elements.newOwner.value = "";
-  elements.newStatus.value = "";
-  elements.newKanban.value = "";
-  elements.newTag.value = "";
-  elements.newGroup.value = "";
+  // Clear form
+  elements.scheduleMessage.value = "";
+  elements.scheduleRespectTimezone.checked = false;
+  elements.scheduleSkipWeekends.checked = false;
+  elements.scheduleBusinessHours.checked = false;
 
-  // Remove highlights
-  document.querySelectorAll(".action-block").forEach((block) => {
-    block.classList.remove("active");
-  });
+  // Update summary
+  updateScheduleSummary();
 
-  hideConfirmModal();
-  applyFilters(); // Refresh view
+  elements.scheduleModal.classList.add("active");
+}
 
-  showToast(
-    `Ações aplicadas com sucesso em ${selectedIds.length} contatos!`,
-    "success"
+function hideScheduleModal() {
+  elements.scheduleModal.classList.remove("active");
+}
+
+function updateScheduleSummary() {
+  const selectedCount = appState.selectedContacts.size;
+  const date = elements.scheduleDate.value;
+  const time = elements.scheduleTime.value;
+  const timezone = elements.scheduleTimezone.value;
+  const message = elements.scheduleMessage.value;
+
+  elements.scheduleContactsCount.textContent = selectedCount;
+
+  if (date && time) {
+    const dateObj = new Date(`${date}T${time}`);
+    const timezoneNames = {
+      "America/Sao_Paulo": "Brasília (GMT-3)",
+      "America/New_York": "Nova York (GMT-5)",
+      "Europe/London": "Londres (GMT+0)",
+      "Europe/Paris": "Paris (GMT+1)",
+      "Asia/Tokyo": "Tóquio (GMT+9)",
+    };
+    const formattedDate = dateObj.toLocaleDateString("pt-BR");
+    const formattedTime = dateObj.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    elements.scheduleDateTime.textContent = `${formattedDate} às ${formattedTime} (${
+      timezoneNames[timezone] || timezone
+    })`;
+  } else {
+    elements.scheduleDateTime.textContent = "-";
+  }
+
+  if (message.trim()) {
+    const preview =
+      message.length > 50 ? message.substring(0, 50) + "..." : message;
+    elements.scheduleMessagePreview.textContent = preview;
+  } else {
+    elements.scheduleMessagePreview.textContent = "-";
+  }
+}
+
+function confirmScheduleMessage() {
+  const selectedCount = appState.selectedContacts.size;
+  const date = elements.scheduleDate.value;
+  const time = elements.scheduleTime.value;
+  const timezone = elements.scheduleTimezone.value;
+  const message = elements.scheduleMessage.value.trim();
+
+  // Validation
+  if (selectedCount === 0) {
+    alert("Selecione pelo menos um contato.");
+    return;
+  }
+
+  if (!date || !time) {
+    alert("Selecione data e horário.");
+    return;
+  }
+
+  if (!message) {
+    alert("Digite a mensagem a ser enviada.");
+    return;
+  }
+
+  // Check if date is in the future
+  const scheduleDateTime = new Date(`${date}T${time}`);
+  const now = new Date();
+  if (scheduleDateTime <= now) {
+    alert("A data e horário devem ser no futuro.");
+    return;
+  }
+
+  // Create schedule object
+  const scheduleData = {
+    id: Date.now(),
+    contacts: Array.from(appState.selectedContacts),
+    date: date,
+    time: time,
+    timezone: timezone,
+    message: message,
+    respectTimezone: elements.scheduleRespectTimezone.checked,
+    skipWeekends: elements.scheduleSkipWeekends.checked,
+    businessHours: elements.scheduleBusinessHours.checked,
+    status: "agendada",
+    createdAt: new Date().toISOString(),
+  };
+
+  // Save to scheduled messages (in real app, this would be sent to backend)
+  if (!appData.scheduledMessages) {
+    appData.scheduledMessages = [];
+  }
+  appData.scheduledMessages.push(scheduleData);
+
+  // Show success message
+  alert(
+    `Mensagem agendada com sucesso para ${selectedCount} contatos em ${scheduleDateTime.toLocaleDateString(
+      "pt-BR"
+    )} às ${scheduleDateTime.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}.`
   );
+
+  // Hide modal and clear selection
+  hideScheduleModal();
+  clearSelection();
+  updateSelectedCount();
+  updateActionButtonsState();
 }
 
 function sendBulkMessage() {
