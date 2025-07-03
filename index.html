@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão de Contatos em Massa</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="container">
+          <div class="header-content">
+            <h1>Ações em massa</h1>
+            <nav class="header-nav">
+              <button class="btn btn--outline btn--sm" id="viewReports">
+                Ver Relatórios anteriores
+              </button>
+              <span class="contacts-count">0 contatos encontrados</span>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-layout">
+        <!-- Sidebar de Filtros -->
+        <aside class="filters-sidebar">
+          <div class="sidebar-header">
+            <h2>Filtros</h2>
+            <button class="btn--link" id="resetFilters">Resetar filtro</button>
+          </div>
+
+          <!-- Pesquisa Rápida -->
+          <div class="filter-section">
+            <button class="section-toggle" data-section="quick-search">
+              <span>Pesquisa rápida</span>
+              <span class="toggle-icon">−</span>
+            </button>
+            <div class="section-content expanded" id="quick-search">
+              <div class="form-group">
+                <label class="form-label">Nome/Email/Número</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="searchQuery"
+                  placeholder="Buscar por nome, email ou número..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Detalhes do Contato -->
+          <div class="filter-section">
+            <button class="section-toggle" data-section="contact-details">
+              <span>Detalhes do contato</span>
+              <span class="toggle-icon">−</span>
+            </button>
+            <div class="section-content expanded" id="contact-details">
+              <div class="form-group">
+                <label class="form-label">Avaliação</label>
+                <select class="form-control" id="filterRating">
+                  <option value="">Todas as avaliações</option>
+                  <option value="5">⭐⭐⭐⭐⭐ (5 estrelas)</option>
+                  <option value="4">⭐⭐⭐⭐ (4 estrelas)</option>
+                  <option value="3">⭐⭐⭐ (3 estrelas)</option>
+                  <option value="2">⭐⭐ (2 estrelas)</option>
+                  <option value="1">⭐ (1 estrela)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Faixa etária</label>
+                <select class="form-control" id="filterAgeRange">
+                  <option value="">Todas as idades</option>
+                  <option value="18-25">18-25 anos</option>
+                  <option value="26-35">26-35 anos</option>
+                  <option value="36-45">36-45 anos</option>
+                  <option value="46-60">46-60 anos</option>
+                  <option value="60+">60+ anos</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gênero</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="gender" value="Masculino" />
+                    Masculino
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="gender" value="Feminino" />
+                    Feminino
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="gender" value="Indefinido" />
+                    Indefinido
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">País</label>
+                <select class="form-control" id="filterCountry">
+                  <option value="">Todos os países</option>
+                  <option value="Brasil">Brasil</option>
+                  <option value="Estados Unidos">Estados Unidos</option>
+                  <option value="Argentina">Argentina</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estado</label>
+                <select class="form-control" id="filterState">
+                  <option value="">Todos os estados</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cidade</label>
+                <select class="form-control" id="filterCity">
+                  <option value="">Todas as cidades</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conversa -->
+          <div class="filter-section">
+            <button class="section-toggle" data-section="conversation">
+              <span>Conversa</span>
+              <span class="toggle-icon">−</span>
+            </button>
+            <div class="section-content expanded" id="conversation">
+              <div class="form-group">
+                <label class="form-label">Agente</label>
+                <select class="form-control" id="filterOwner">
+                  <option value="">Todos os agentes</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status da conversa</label>
+                <select class="form-control" id="filterStatus">
+                  <option value="">Todos os status</option>
+                  <option value="Andamento">Andamento</option>
+                  <option value="Pausa">Pausa</option>
+                  <option value="Resolvida">Resolvida</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estágio do Pipeline</label>
+                <select class="form-control" id="filterKanban">
+                  <option value="">Todos os estágios</option>
+                  <option value="Hot Lead">Hot Lead</option>
+                  <option value="Lead Qualificado">Lead Qualificado</option>
+                  <option value="Proposta Enviada">Proposta Enviada</option>
+                  <option value="Negociação">Negociação</option>
+                  <option value="Fechado">Fechado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Organização -->
+          <div class="filter-section">
+            <button class="section-toggle" data-section="organization">
+              <span>Organização</span>
+              <span class="toggle-icon">−</span>
+            </button>
+            <div class="section-content expanded" id="organization">
+              <div class="form-group">
+                <label class="form-label">Tags</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="tagInput"
+                  placeholder="Digite uma tag e pressione Enter..."
+                />
+                <div class="tags-selected" id="selectedTags">
+                  <!-- Tags selecionadas aparecerão aqui -->
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Grupos</label>
+                <div class="checkbox-group" id="groupsCheckboxes">
+                  <!-- Groups will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões de Ação -->
+          <div class="filter-actions">
+            <button class="btn btn--primary btn--full-width" id="applyFilters">
+              Aplicar filtros
+            </button>
+            <button
+              class="btn btn--secondary btn--full-width mt-8"
+              id="viewPreviousReports"
+            >
+              Ver relatórios anteriores
+            </button>
+          </div>
+        </aside>
+
+        <!-- Área Principal -->
+        <div class="main-content">
+          <!-- Contador de Resultados -->
+          <div class="results-header">
+            <h3 id="resultsCount">0 contatos encontrados</h3>
+            <div class="selection-info">
+              <span id="selectedCount">0 selecionados</span>
+            </div>
+          </div>
+
+          <!-- Tabela de Contatos -->
+          <div class="table-section">
+            <div class="table-container">
+              <table class="contacts-table">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Status Conversa</th>
+                    <th>Agente</th>
+                    <th>Tags</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="contactsTableBody">
+                  <!-- Dados serão inseridos via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Paginação -->
+            <div class="pagination">
+              <button class="btn btn--outline btn--sm" id="prevPage" disabled>
+                Anterior
+              </button>
+              <span class="pagination-info">
+                Página <span id="currentPage">1</span> de
+                <span id="totalPages">1</span>
+              </span>
+              <button class="btn btn--outline btn--sm" id="nextPage" disabled>
+                Próxima
+              </button>
+            </div>
+          </div>
+
+          <!-- Blocos de Ações (aparecem após filtrar) -->
+          <div class="actions-grid hidden" id="actionsGrid">
+            <h3>Ações em Massa</h3>
+            <div class="actions-container">
+              <!-- Linha 1 -->
+              <div class="action-block" data-action="changeOwner">
+                <div class="action-icon">👤</div>
+                <div class="action-label">Trocar agente</div>
+                <select
+                  class="form-control action-select"
+                  id="newOwner"
+                  disabled
+                >
+                  <option value="">Selecionar agente</option>
+                </select>
+              </div>
+
+              <div class="action-block" data-action="changeStatus">
+                <div class="action-icon">📊</div>
+                <div class="action-label">Trocar status</div>
+                <select
+                  class="form-control action-select"
+                  id="newStatus"
+                  disabled
+                >
+                  <option value="">Selecionar status</option>
+                </select>
+              </div>
+
+              <div class="action-block" data-action="moveKanban">
+                <div class="action-icon">📋</div>
+                <div class="action-label">Pipe stage</div>
+                <select
+                  class="form-control action-select"
+                  id="newKanban"
+                  disabled
+                >
+                  <option value="">Selecionar lista</option>
+                </select>
+              </div>
+
+              <div class="action-block" data-action="bulkMessage">
+                <div class="action-icon">💬</div>
+                <div class="action-label">Mensagem em massa</div>
+                <button
+                  class="btn btn--secondary btn--sm action-btn"
+                  id="sendBulkMessage"
+                  disabled
+                >
+                  Enviar
+                </button>
+              </div>
+
+              <!-- Linha 2 -->
+              <div class="action-block" data-action="addTag">
+                <div class="action-icon">🏷️</div>
+                <div class="action-label">Adicionar tag</div>
+                <select class="form-control action-select" id="newTag" disabled>
+                  <option value="">Selecionar tag</option>
+                </select>
+              </div>
+
+              <div class="action-block" data-action="addGroup">
+                <div class="action-icon">👥</div>
+                <div class="action-label">Adicionar ao grupo</div>
+                <select
+                  class="form-control action-select"
+                  id="newGroup"
+                  disabled
+                >
+                  <option value="">Selecionar grupo</option>
+                </select>
+              </div>
+
+              <div class="action-block" data-action="downloadCSV">
+                <div class="action-icon">📥</div>
+                <div class="action-label">Baixar CSV</div>
+                <button
+                  class="btn btn--secondary btn--sm action-btn"
+                  id="downloadCSV"
+                  disabled
+                >
+                  Download
+                </button>
+              </div>
+
+              <div class="action-block danger" data-action="delete">
+                <div class="action-icon">🗑️</div>
+                <div class="action-label">Excluir contatos selecionados</div>
+                <button
+                  class="btn btn--danger btn--sm action-btn"
+                  id="deleteContacts"
+                  disabled
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+
+            <!-- Botão de Aplicar Ações -->
+            <div class="apply-actions">
+              <button
+                class="btn btn--primary btn--lg"
+                id="applyActions"
+                disabled
+              >
+                Aplicar ações selecionadas
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal de Relatórios -->
+    <div class="modal-overlay" id="reportsModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Relatórios de campanhas anteriores</h3>
+          <button class="modal-close" id="closeReportsModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="reports-filters">
+            <div class="form-group">
+              <label class="form-label">Período</label>
+              <select class="form-control" id="reportsPeriod">
+                <option value="">Todos os períodos</option>
+                <option value="last7days">Últimos 7 dias</option>
+                <option value="last30days">Últimos 30 dias</option>
+                <option value="last3months">Últimos 3 meses</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de ação</label>
+              <select class="form-control" id="reportsType">
+                <option value="">Todos os tipos</option>
+                <option value="Bulk Message">Mensagem em massa</option>
+                <option value="Status Change">Mudança de status</option>
+                <option value="Tag Addition">Adição de tag</option>
+                <option value="Owner Change">Mudança de agente</option>
+                <option value="Kanban Move">Movimentação Kanban</option>
+              </select>
+            </div>
+          </div>
+          <div class="reports-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Contatos Afetados</th>
+                  <th>Status</th>
+                  <th>Taxa de Sucesso</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="reportsTableBody">
+                <!-- Dados serão inseridos via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div class="modal-overlay" id="confirmModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Confirmar ações</h3>
+          <button class="modal-close" id="closeConfirmModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Você está prestes a aplicar as seguintes ações em
+            <strong id="affectedCount">0</strong> contatos:
+          </p>
+          <ul id="actionsList"></ul>
+          <p class="warning">
+            ⚠️ Esta ação não pode ser desfeita. Deseja continuar?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn--outline" id="cancelAction">Cancelar</button>
+          <button class="btn btn--primary" id="confirmAction">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
